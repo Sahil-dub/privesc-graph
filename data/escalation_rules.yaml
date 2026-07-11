@@ -1,0 +1,169 @@
+version: 1
+
+admin_targets:
+  - arn:aws:iam::*:policy/AdministratorAccess
+  - AdministratorAccess
+
+rules:
+  - id: attach_user_policy
+    name: Attach managed policy to self or another user
+    category: direct_policy_grant
+    required_actions:
+      - iam:AttachUserPolicy
+    grants:
+      - administrator_policy
+    edge_label: can_attach_user_policy
+    severity: critical
+
+  - id: put_user_policy
+    name: Create or overwrite an inline user policy
+    category: direct_policy_grant
+    required_actions:
+      - iam:PutUserPolicy
+    grants:
+      - inline_admin_policy
+    edge_label: can_put_user_policy
+    severity: critical
+
+  - id: attach_role_policy
+    name: Attach managed policy to a role
+    category: role_policy_grant
+    required_actions:
+      - iam:AttachRolePolicy
+    grants:
+      - administrator_policy
+    edge_label: can_attach_role_policy
+    severity: critical
+
+  - id: put_role_policy
+    name: Create or overwrite an inline role policy
+    category: role_policy_grant
+    required_actions:
+      - iam:PutRolePolicy
+    grants:
+      - inline_admin_policy
+    edge_label: can_put_role_policy
+    severity: critical
+
+  - id: attach_group_policy
+    name: Attach managed policy to a group
+    category: group_policy_grant
+    required_actions:
+      - iam:AttachGroupPolicy
+    grants:
+      - administrator_policy
+    edge_label: can_attach_group_policy
+    severity: high
+
+  - id: put_group_policy
+    name: Create or overwrite an inline group policy
+    category: group_policy_grant
+    required_actions:
+      - iam:PutGroupPolicy
+    grants:
+      - inline_admin_policy
+    edge_label: can_put_group_policy
+    severity: high
+
+  - id: add_user_to_admin_group
+    name: Add a user to a privileged group
+    category: group_membership
+    required_actions:
+      - iam:AddUserToGroup
+    grants:
+      - group_permissions
+    edge_label: can_join_group
+    severity: high
+
+  - id: create_policy_version
+    name: Create a new default version of an existing policy
+    category: policy_versioning
+    required_actions:
+      - iam:CreatePolicyVersion
+    grants:
+      - modified_policy_permissions
+    edge_label: can_create_policy_version
+    severity: critical
+
+  - id: set_default_policy_version
+    name: Roll an existing policy back or forward to a privileged version
+    category: policy_versioning
+    required_actions:
+      - iam:SetDefaultPolicyVersion
+    grants:
+      - existing_policy_version_permissions
+    edge_label: can_set_default_policy_version
+    severity: critical
+
+  - id: update_assume_role_policy
+    name: Change who is allowed to assume a role
+    category: trust_policy_change
+    required_actions:
+      - iam:UpdateAssumeRolePolicy
+      - sts:AssumeRole
+    grants:
+      - role_session_permissions
+    edge_label: can_modify_role_trust
+    severity: critical
+
+  - id: assume_role
+    name: Assume an existing trusted role
+    category: role_assumption
+    required_actions:
+      - sts:AssumeRole
+    grants:
+      - role_session_permissions
+    edge_label: can_assume_role
+    severity: medium
+
+  - id: create_access_key
+    name: Create an access key for another user
+    category: credential_creation
+    required_actions:
+      - iam:CreateAccessKey
+    grants:
+      - target_user_credentials
+    edge_label: can_create_access_key
+    severity: high
+
+  - id: create_login_profile
+    name: Create a console password for another user
+    category: credential_creation
+    required_actions:
+      - iam:CreateLoginProfile
+    grants:
+      - target_user_console_access
+    edge_label: can_create_login_profile
+    severity: high
+
+  - id: pass_role_to_lambda
+    name: Pass a privileged role to a Lambda function
+    category: service_role_abuse
+    required_actions:
+      - iam:PassRole
+      - lambda:CreateFunction
+    grants:
+      - lambda_execution_role_permissions
+    edge_label: can_pass_role_to_lambda
+    severity: critical
+
+  - id: update_lambda_code
+    name: Modify code for a Lambda function with a privileged execution role
+    category: service_role_abuse
+    required_actions:
+      - lambda:UpdateFunctionCode
+    grants:
+      - lambda_execution_role_permissions
+    edge_label: can_update_lambda_code
+    severity: high
+
+  - id: pass_role_to_ec2
+    name: Launch an EC2 instance with a privileged instance profile
+    category: service_role_abuse
+    required_actions:
+      - iam:PassRole
+      - ec2:RunInstances
+    grants:
+      - instance_profile_permissions
+    edge_label: can_pass_role_to_ec2
+    severity: critical
