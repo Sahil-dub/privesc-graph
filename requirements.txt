@@ -1,0 +1,11 @@
+networkx>=3.2
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.4
+shap>=0.45
+streamlit>=1.32
+pyvis>=0.3.2
+plotly>=5.20
+faker>=24.0
+pytest>=8.0
+pyyaml>=6.0
