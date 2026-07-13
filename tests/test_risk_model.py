@@ -37,3 +37,33 @@ def test_extract_graph_features_excludes_admin_node() -> None:
     features = extract_graph_features(graph, "role/AdminRole")
 
     assert features.empty
+
+    def score_identity_risk(features: pd.DataFrame) -> pd.DataFrame:
+    scored_features = features.copy()
+
+    if scored_features.empty:
+        scored_features["risk_score"] = []
+        return scored_features
+
+    scored_features["risk_score"] = 0.0
+
+    has_path = scored_features["has_admin_path"] == 1
+
+    scored_features.loc[has_path, "risk_score"] += 60
+
+    scored_features.loc[has_path, "risk_score"] += (
+        20 / scored_features.loc[has_path, "shortest_path_length"]
+    )
+
+    scored_features["risk_score"] += scored_features["path_count"].clip(upper=5) * 3
+    scored_features["risk_score"] += scored_features["out_degree"].clip(upper=5) * 2
+    scored_features["risk_score"] += (
+        scored_features["betweenness_centrality"].clip(upper=1.0) * 10
+    )
+
+    scored_features["risk_score"] = scored_features["risk_score"].clip(upper=100).round(2)
+
+    return scored_features.sort_values(
+        by=["risk_score", "path_count", "identity"],
+        ascending=[False, False, True],
+    ).reset_index(drop=True)
